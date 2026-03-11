@@ -1,4 +1,3 @@
-# -http-websocket-
 # Chat Server - 基于HTTP和WebSocket的聊天服务器
 
 ## 项目简介
