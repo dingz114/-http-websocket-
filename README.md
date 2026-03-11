@@ -4,8 +4,8 @@
 本项目是一个轻量级的聊天服务器，同时支持HTTP协议和WebSocket协议，能够为客户端提供网页访问入口，并通过WebSocket实现实时的双向通信，支持多线程部署以提升并发处理能力。
 
 ## 环境依赖
-- 操作系统：Linux/macOS（推荐，Windows需适配编译环境）
-- 编译工具：CMake (>= 3.10)、GCC/G++ (>= 7.0) 或 Clang
+- 操作系统：Linux
+- 编译工具：CMake (>= 3.10)、GCC/G++ (>= 7.0) 
 - 依赖库：
   - libwebsockets（WebSocket协议处理）
   - pthread（多线程支持）
