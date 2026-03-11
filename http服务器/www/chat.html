@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>WebSocket Chat</title>
+    <style>
+        #log {
+            width: 600px;
+            height: 300px;
+            border: 1px solid #ccc;
+            overflow-y: scroll;
+            font-family: monospace;
+            padding: 5px;
+            background: #f9f9f9;
+        }
+        .message {
+            margin: 2px 0;
+        }
+        .id {
+            color: blue;
+            font-weight: bold;
+        }
+        .text {
+            color: black;
+        }
+        #msg {
+            width: 500px;
+            padding: 5px;
+        }
+        button {
+            padding: 5px 10px;
+        }
+    </style>
+</head>
+<body>
+    <h2>Chat Room</h2>
+    <div id="log"></div>
+    <input type="text" id="msg" size="40" placeholder="输入消息...">
+    <button onclick="sendMessage()">Send</button>
+
+    <script>
+        var ws = new WebSocket("ws://" + location.host);
+        
+        ws.onopen = function() {
+            console.log("WebSocket connected");
+            addMessage("[System]", "Connected to server");
+        };
+        
+        ws.onerror = function(error) {
+            console.log("WebSocket error:", error);
+        };
+        
+        ws.onclose = function(event) {
+            console.log("WebSocket closed. Code:", event.code, "Reason:", event.reason);
+            addMessage("[System]", "Disconnected from server");
+        };
+        
+        ws.onmessage = function(event) {
+            console.log("Raw message:", event.data);
+            var data = event.data;
+            // 预期格式: [userX] message
+            var bracketPos = data.indexOf(']');
+            if (bracketPos !== -1) {
+                var idPart = data.substring(0, bracketPos + 1);
+                var msgPart = data.substring(bracketPos + 1).trim();
+                addMessage(idPart, msgPart);
+            } else {
+                addMessage("[Unknown]", data);
+            }
+        };
+        
+        function addMessage(idPart, msgPart) {
+            var log = document.getElementById("log");
+            var msgDiv = document.createElement("div");
+            msgDiv.className = "message";
+            msgDiv.innerHTML = '<span class="id">' + escapeHtml(idPart) + '</span> <span class="text">' + escapeHtml(msgPart) + '</span>';
+            log.appendChild(msgDiv);
+            log.scrollTop = log.scrollHeight;  // 自动滚动到底部
+        }
+        
+        function escapeHtml(text) {
+            // 简单转义，防止XSS
+            var div = document.createElement("div");
+            div.appendChild(document.createTextNode(text));
+            return div.innerHTML;
+        }
+        
+        function sendMessage() {
+            var msg = document.getElementById("msg").value;
+            if (msg.trim() === "") return;
+            ws.send(msg);
+            document.getElementById("msg").value = "";
+        }
+
+        // 按回车发送
+        document.getElementById("msg").addEventListener("keypress", function(e) {
+            if (e.key === "Enter") {
+                sendMessage();
+            }
+        });
+    </script>
+</body>
+</html>
